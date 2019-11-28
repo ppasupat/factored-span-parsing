@@ -9,9 +9,12 @@ import subprocess
 import sys
 
 
-BASEDIR = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), 'out',
-))
+if 'SPANPARSER_BASEDIR' in os.environ:
+    BASEDIR = os.environ['SPANPARSER_BASEDIR']
+else:
+    BASEDIR = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), 'out',
+    ))
 
 
 def main():

@@ -21,9 +21,12 @@ from spanparser.experiments import Experiment
 from spanparser.outputter import Outputter
 
 
-BASEDIR = os.path.abspath(os.path.join(
-    os.path.dirname(__file__), 'out',
-))
+if 'SPANPARSER_BASEDIR' in os.environ:
+    BASEDIR = os.environ['SPANPARSER_BASEDIR']
+else:
+    BASEDIR = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), 'out',
+    ))
 
 
 def main():
@@ -36,11 +39,9 @@ def main():
             help='Force the output directory')
     parser.add_argument('-s', '--seed', type=int, default=42,
             help='Set seed')
-    parser.add_argument('-p', '--port', type=int, default=8080,
-            help='Port for the "server" action')
     parser.add_argument('-C', '--force-cpu', action='store_true',
             help='Load a GPU-trained model on CPU')
-    parser.add_argument('action', choices=['train', 'test', 'server'])
+    parser.add_argument('action', choices=['train', 'test'])
     parser.add_argument('configs', nargs='+',
             help='Config JSON or YAML files')
     args = parser.parse_args()
@@ -69,8 +70,6 @@ def main():
         experiment.train()
     elif args.action == 'test':
         experiment.test()
-    elif args.action == 'server':
-        experiment.serve(args.port)
     else:
         raise ValueError('Unknown action: {}'.format(args.action))
     

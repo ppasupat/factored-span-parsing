@@ -3,14 +3,12 @@ from __future__ import (absolute_import, division, print_function)
 ################################
 # Constants
 
+INTENT = 'IN'
+SLOT = 'SL'
 PAD = '<PAD>'
-PAD_INDEX = 0
 UNK = '<UNK>'
-UNK_INDEX = 1
-BOS = '<BOS>'
-BOS_INDEX = 2
+SOS = '<SOS>'
 EOS = '<EOS>'
-EOS_INDEX = 3
 
 
 ################################

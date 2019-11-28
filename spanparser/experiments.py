@@ -154,11 +154,3 @@ class Experiment(object):
             )
             self.optimizer.step()
         return stats
-
-    ################################
-    # Server mode
-
-    def serve(self, port):
-        from spanparser.server import start_server
-        self.model.eval()
-        start_server(self, port)
