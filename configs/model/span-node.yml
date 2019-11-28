@@ -1,0 +1,28 @@
+model:
+  name: span
+  dropout: 0.2
+  representation:
+    embedding:
+      dim: 200
+    lstm:
+      dim: 164
+      layers: 2
+    span_features:
+      - inside_hidden
+      - attention_token
+      - length
+    length_embed_dim: 20
+  decoder:
+    name: node
+    punt_on_training: true
+    verify_score: false
+    verify_decoder: false
+    rescore_prediction: false
+    span_detector:
+      mlp_layers: 2
+      mlp_dim: 200
+    cost_augment: 0.0
+  output_layer:
+    add_edge_loss: false
+    null_weight: 0.4
+    verbose: false

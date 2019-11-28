@@ -1,0 +1,6 @@
+data:
+  name: top
+  files:
+    train: data/artificial-chain/train.seq
+    dev: data/artificial-chain/eval.seq
+    test: data/artificial-chain/test.seq

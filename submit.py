@@ -13,7 +13,7 @@ if 'SPANPARSER_BASEDIR' in os.environ:
     BASEDIR = os.environ['SPANPARSER_BASEDIR']
 else:
     BASEDIR = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), 'out',
+        os.path.dirname(__file__), 'experiments',
     ))
 
 

@@ -1,0 +1,6 @@
+data:
+  name: top
+  files:
+    train: data/top_dataset/train.clean.seq
+    dev: data/top_dataset/eval.clean.seq
+    test: data/top_dataset/test.clean.seq

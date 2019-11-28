@@ -60,60 +60,52 @@ class Experiment(object):
 
     def train(self):
         config = self.config
-
-        # Initial save
-        self.outputter.save_model(self.meta.step, self.model, self.meta)
-
-        max_steps = config.timing.max_steps
-
-        train_iter = None
         train_stats = Stats()
 
-        while self.meta.step < max_steps:
-            self.meta.step += 1
-            
-            train_batch = None if train_iter is None else next(train_iter, None)
-            if train_batch is None:
-                self.dataset.init_iter('train')
-                train_iter = self.dataset.get_iter('train')
-                train_batch = next(train_iter)
-                assert train_batch is not None, 'No training data'
+        # Initial save
+        self.outputter.save_model(self.meta.epoch, self.model, self.meta)
 
-            stats = self.process_batch(train_batch, train=True)
-            train_stats.add(stats)
+        max_epochs = config.timing.max_epochs
+
+        while self.meta.epoch < max_epochs:
+            self.meta.epoch += 1
+            
+            self.dataset.init_iter('train')
+            for train_batch in self.dataset.get_iter('train'):
+                stats = self.process_batch(train_batch, train=True)
+                train_stats.add(stats)
 
             # Log the aggregate statistics
-            if self.meta.step % config.timing.log_freq == 0:
-                print('TRAIN @ {}: {}'.format(self.meta.step, train_stats))
-                train_stats.log(self.outputter.tb_logger, self.meta.step, 'pn_train_')
-                train_stats = Stats()
+            print('TRAIN @ {}: {}'.format(self.meta.epoch, train_stats))
+            train_stats.log(self.outputter.tb_logger, self.meta.epoch, 'pn_train_')
+            train_stats = Stats()
 
             # Save the model
-            if self.meta.step % config.timing.save_freq == 0:
-                self.outputter.save_model(self.meta.step, self.model, self.meta)
+            self.outputter.save_model(self.meta.epoch, self.model, self.meta)
 
             # Evaluate
-            if self.meta.step % config.timing.eval_freq == 0:
-                dev_stats = Stats()
-                self.dataset.init_iter('dev')
-                fout_filename = 'pred.dev.{}'.format(self.meta.step)
-                with open(self.outputter.get_path(fout_filename), 'w') as fout:
-                    for dev_batch in self.dataset.get_iter('dev'):
-                        stats = self.process_batch(dev_batch, train=False, fout=fout)
-                        dev_stats.add(stats)
-                print('DEV @ {}: {}'.format(self.meta.step, dev_stats))
-                dev_stats.log(self.outputter.tb_logger, self.meta.step, 'pn_dev_')
+            dev_stats = Stats()
+            self.dataset.init_iter('dev')
+            fout_filename = 'pred.dev.{}'.format(self.meta.epoch)
+            with open(self.outputter.get_path(fout_filename), 'w') as fout:
+                for dev_batch in self.dataset.get_iter('dev'):
+                    stats = self.process_batch(dev_batch, train=False, fout=fout)
+                    dev_stats.add(stats)
+            print('DEV @ {}: {}'.format(self.meta.epoch, dev_stats))
+            dev_stats.log(self.outputter.tb_logger, self.meta.epoch, 'pn_dev_')
+            self.meta.update_acc(dev_stats.accuracy / dev_stats.n)
 
     def test(self):
         test_stats = Stats()
         self.dataset.init_iter('test')
-        fout_filename = 'pred.test.{}'.format(self.meta.step)
+        fout_filename = 'pred.test.{}'.format(self.meta.epoch)
         with open(self.outputter.get_path(fout_filename), 'w') as fout:
             for test_batch in self.dataset.get_iter('test'):
                 stats = self.process_batch(test_batch, train=False, fout=fout)
                 test_stats.add(stats)
-        print('TEST @ {}: {}'.format(self.meta.step, test_stats))
-        test_stats.log(self.outputter.tb_logger, self.meta.step, 'pn_test_')
+        print('TEST @ {}: {}'.format(self.meta.epoch, test_stats))
+        test_stats.log(self.outputter.tb_logger, self.meta.epoch, 'pn_test_')
+
 
     ################################
     # Processing a batch

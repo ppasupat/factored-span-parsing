@@ -6,7 +6,7 @@ from __future__ import (absolute_import, division, print_function)
 import pickle
 
 
-DEFAULT_SAVE_KEYS = ['steps', 'best_step', 'best_acc']
+DEFAULT_SAVE_KEYS = ['epoch', 'best_epoch', 'best_acc']
 
 
 class Metadata(object):
@@ -16,7 +16,7 @@ class Metadata(object):
     
     def __init__(self, config):
         self.save_keys = set(DEFAULT_SAVE_KEYS)
-        self.steps = 0
+        self.epoch = 0
         self.best_epoch = 0
         self.best_acc = 0
 
@@ -36,6 +36,6 @@ class Metadata(object):
 
     def update_acc(self, acc):
         if acc > self.best_acc:
-            print('Found new best acc @ step {}: {}'.format(self.steps, acc))
-            self.best_step = self.step
+            print('Found new best acc @ {}: {}'.format(self.epoch, acc))
+            self.best_epoch = self.epoch
             self.best_acc = acc

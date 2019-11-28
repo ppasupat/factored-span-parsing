@@ -3,7 +3,7 @@
 """
 Main entry for running experiments.
 
-The results will be saved to ./out/
+The results will be saved to ./experiments/
 (relative to this file)
 """
 from __future__ import (absolute_import, division, print_function)
@@ -25,7 +25,7 @@ if 'SPANPARSER_BASEDIR' in os.environ:
     BASEDIR = os.environ['SPANPARSER_BASEDIR']
 else:
     BASEDIR = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), 'out',
+        os.path.dirname(__file__), 'experiments',
     ))
 
 
