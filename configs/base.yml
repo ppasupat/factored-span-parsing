@@ -1,0 +1,19 @@
+# Base config file. Always use this first.
+
+timing:
+  max_steps: 10000
+  log_freq: 500
+  save_freq: 500
+  eval_freq: 500
+
+train:
+  batch_size: 32
+  learning_rate: 0.001
+  l2_reg: 0
+  gradient_clip: 10
+
+data:
+  name: null    # Need to be overwritten
+
+model:
+  name: null    # Need to be overwritten

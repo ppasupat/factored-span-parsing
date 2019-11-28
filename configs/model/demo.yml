@@ -1,0 +1,7 @@
+model:
+  name: demo
+  embed_dim: 100
+  lstm_dim: 100
+  lstm_layers: 2
+  dropout: 0.3
+  mlp_hidden_dim: 100

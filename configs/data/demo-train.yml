@@ -1,0 +1,5 @@
+data:
+  name: demo
+  files:
+    train: demo/train.tsv
+    dev: demo/dev.tsv
