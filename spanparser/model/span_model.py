@@ -4,18 +4,13 @@ from __future__ import (absolute_import, division, print_function)
 import torch
 import torch.nn as nn
 
-from spanparser.model.span_features_representation import SpanFeaturesRepresentation
-from spanparser.model.alternative_representation import AlternativeRepresentation
-from spanparser.model.cky_with_node_scores_decoder import CKYWithNodeScoresDecoder
-from spanparser.model.cky_with_edge_scores_decoder import CKYWithEdgeScoresDecoder
-from spanparser.model.tree_output_layer import TreeOutputLayer
-from spanparser.model.utils import load_glove
+from spanparser.model.base import Model
 
 
-class SpanModel(nn.Module):
+class SpanModel(Model):
 
     def __init__(self, config, meta):
-        super(Model, self).__init__()
+        super(SpanModel, self).__init__(config, meta)
 
     def initialize(self, config, meta):
         """
