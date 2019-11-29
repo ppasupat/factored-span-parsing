@@ -237,7 +237,7 @@ class TopDataset(Dataset):
         """
         return self._iters[name]
 
-    def evaluate(self, batch, logits, prediction, stats, fout=None):
+    def evaluate(self, batch, logit, prediction, stats, fout=None):
         """
         Evaluate the predictions and write the results to stats.
 

@@ -1,7 +1,7 @@
 model:
   name: span
   dropout: 0.2
-  representation:
+  span_encoder:
     embedding:
       dim: 200
     lstm:
@@ -9,8 +9,11 @@ model:
       layers: 2
     span_features:
       - inside_hidden
+      - stern_hidden
+      - average_hidden
       - attention_token
       - length
+    word_dropout: true
     length_embed_dim: 20
   decoder:
     name: node
