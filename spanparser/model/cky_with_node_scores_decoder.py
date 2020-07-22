@@ -4,8 +4,8 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from spanparser.model.decoder_base import DecoderBase
-from spanparser.model.scorers import NodeScorer
+from spanparser.model.span_detection_decoder import SpanDetectionDecoder
+from spanparser.model.tree_decoder import TreeDecoder
 from spanparser.model.utils import (
     DecodedSpan,
     NumpifiedDecodedSpan,
@@ -52,7 +52,7 @@ class Candidate(NamedTuple):
 ChartDict = Dict[Tuple[int, int, Tag], Candidate]
 
 
-class DecoderNodeScoresOnly(DecoderBase):
+class CKYWithNodeScoresDecoder(TreeDecoder):
     """
     Parse with CKY algorithm.
 
@@ -77,7 +77,7 @@ class DecoderNodeScoresOnly(DecoderBase):
 
     Note: The Tensor returned by _build_tree is DETACHED, meaning the gradient will
     not flow through. If gradient is needed (e.g., in margin loss), set the config
-    rescore_prediction = True (See DecoderBase.Config) to get a non-detached Tensor.
+    rescore_prediction = True (See TreeDecoder.Config) to get a non-detached Tensor.
     """
 
     def __init__(self, config, meta, span_embedding_dim):
@@ -90,7 +90,7 @@ class DecoderNodeScoresOnly(DecoderBase):
                 that disagree with the gold chains.
         """
         super().__init__(config, meta, span_embedding_dim)
-        self.node_scorer = NodeScorer(
+        self.span_detector = SpanDetectionDecoder(
             config,
             meta,
             span_embedding_dim=span_embedding_dim,
@@ -133,7 +133,7 @@ class DecoderNodeScoresOnly(DecoderBase):
         span_indices: List[List[int]],
         seq_lengths: torch.Tensor,
     ) -> List[Any]:
-        return self.node_scorer(x_d, span_indices, seq_lengths)[0]
+        return self.span_detector(x_d, span_indices, seq_lengths)[0]
 
     def _build_tree(
         self,

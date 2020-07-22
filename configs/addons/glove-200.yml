@@ -1,5 +1,0 @@
-model:
-  span_encoder:
-    embedding:
-      dim: 200
-      glove: data/glove/glove.6B.200d.txt

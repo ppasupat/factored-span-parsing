@@ -1,5 +1,4 @@
-"""Outputter manages the outdir directory."""
-from __future__ import (absolute_import, division, print_function)
+# Outputter manages the outdir directory
 import os
 import logging
 

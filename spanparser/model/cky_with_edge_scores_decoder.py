@@ -4,8 +4,9 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from spanparser.model.decoder_base import DecoderBase
-from spanparser.model.scorers import NodeScorer, EdgeScorer
+from spanparser.model.span_detection_decoder import SpanDetectionDecoder
+from spanparser.model.edge_detection_decoder import EdgeDetectionDecoder
+from spanparser.model.tree_decoder import TreeDecoder
 from spanparser.model.utils import (
     DecodedEdges,
     DecodedSpan,
@@ -45,7 +46,7 @@ class CandidateBatch(NamedTuple):
 ChartDict = Dict[Tuple[int, int], CandidateBatch]
 
 
-class DecoderWithEdgeScores(DecoderBase):
+class CKYWithEdgeScoresDecoder(TreeDecoder):
     """
     Parse with CKY algorithm.
 
@@ -69,7 +70,7 @@ class DecoderWithEdgeScores(DecoderBase):
 
     Note: The Tensor returned by _build_tree is DETACHED, meaning the gradient will
     not flow through. If gradient is needed (e.g., in margin loss), set the config
-    rescore_prediction = True (See DecoderBase.Config) to get a non-detached Tensor.
+    rescore_prediction = True (See TreeDecoder.Config) to get a non-detached Tensor.
     """
 
     def __init__(self, config, meta, span_embedding_dim):
@@ -82,13 +83,13 @@ class DecoderWithEdgeScores(DecoderBase):
                 that disagree with the gold chains.
         """
         super().__init__(config, meta, span_embedding_dim)
-        self.node_scorer = NodeScorer(
+        self.span_detector = SpanDetectionDecoder(
             config,
             meta,
             span_embedding_dim=span_embedding_dim,
             num_labels=len(meta.unary_chains),
         )
-        self.edge_scorer = EdgeScorer(
+        self.edge_detector = EdgeDetectionDecoder(
             config,
             meta,
             span_embedding_dim=span_embedding_dim,
@@ -139,8 +140,8 @@ class DecoderWithEdgeScores(DecoderBase):
         """
         Returns both the node and edge scores.
         """
-        batch_decoded_spans = self.node_scorer(x_d, span_indices, seq_lengths)[0]
-        batch_decoded_edges = self.edge_scorer(x_d, span_indices, seq_lengths)
+        batch_decoded_spans = self.span_detector(x_d, span_indices, seq_lengths)[0]
+        batch_decoded_edges = self.edge_detector(x_d, span_indices, seq_lengths)
         return list(zip(batch_decoded_spans, batch_decoded_edges))
 
     def _build_tree(

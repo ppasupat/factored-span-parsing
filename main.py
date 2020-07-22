@@ -6,7 +6,6 @@ Main entry for running experiments.
 The results will be saved to ./experiments/
 (relative to this file)
 """
-from __future__ import (absolute_import, division, print_function)
 import argparse
 import json
 import os
@@ -25,8 +24,11 @@ if 'SPANPARSER_BASEDIR' in os.environ:
     BASEDIR = os.environ['SPANPARSER_BASEDIR']
 else:
     BASEDIR = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), 'experiments',
+        os.path.dirname(__file__), 'out',
     ))
+
+if not os.path.isdir(BASEDIR):
+    os.makedirs(BASEDIR)
 
 
 def main():
@@ -37,10 +39,8 @@ def main():
             help='Additional config (as JSON)')
     parser.add_argument('-o', '--outdir',
             help='Force the output directory')
-    parser.add_argument('-s', '--seed', type=int, default=42,
+    parser.add_argument('-s', '--seed', type=int,
             help='Set seed')
-    parser.add_argument('-C', '--force-cpu', action='store_true',
-            help='Load a GPU-trained model on CPU')
     parser.add_argument('action', choices=['train', 'test'])
     parser.add_argument('configs', nargs='+',
             help='Config JSON or YAML files')
@@ -58,13 +58,8 @@ def main():
     print(json.dumps(config, indent=2))
     config = ConfigDict(config)
 
-    if not os.path.isdir(BASEDIR):
-        os.makedirs(BASEDIR)
-
     outputter = Outputter(config, basedir=BASEDIR, force_outdir=args.outdir)
-    experiment = Experiment(
-        config, outputter, args.load_prefix, args.seed, args.force_cpu
-    )
+    experiment = Experiment(config, outputter, args.load_prefix, args.seed)
 
     if args.action == 'train':
         experiment.train()

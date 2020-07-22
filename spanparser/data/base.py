@@ -1,6 +1,3 @@
-from __future__ import (absolute_import, division, print_function)
-
-
 class Dataset(object):
 
     def __init__(self, config, meta):
@@ -19,7 +16,7 @@ class Dataset(object):
         """
         raise NotImplementedError
 
-    def evaluate(self, batch, logit, prediction, stats, fout=None):
+    def evaluate(self, batch, prediction, stats, fout=None):
         """
         Evaluate the predictions and write the results to stats.
         """

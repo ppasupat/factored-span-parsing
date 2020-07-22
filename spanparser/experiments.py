@@ -1,10 +1,10 @@
-from __future__ import (absolute_import, division, print_function)
 import random
 
 import numpy as np
 import torch
 from torch.nn.utils import clip_grad_norm_
 import torch.optim as optim
+from tqdm import tqdm
 
 from spanparser.data import create_dataset
 from spanparser.metadata import Metadata
@@ -14,7 +14,7 @@ from spanparser.utils import Stats, try_gpu
 
 class Experiment(object):
 
-    def __init__(self, config, outputter, load_prefix=None, seed=None, force_cpu=False):
+    def __init__(self, config, outputter, load_prefix=None, seed=None):
         self.config = config
         if seed is not None:
             random.seed(seed)
@@ -28,7 +28,7 @@ class Experiment(object):
         self.dataset = create_dataset(self.config, self.meta)
         self.create_model()
         if load_prefix:
-            self.load_model(load_prefix, force_cpu=force_cpu)
+            self.load_model(load_prefix)
         else:
             self.model.initialize(self.config, self.meta)
 
@@ -47,12 +47,9 @@ class Experiment(object):
         print('Loading metadata from {}.meta'.format(prefix))
         self.meta.load(prefix + '.meta')
 
-    def load_model(self, prefix, force_cpu=False):
+    def load_model(self, prefix):
         print('Loading model from {}.model'.format(prefix))
-        if force_cpu:
-            state_dict = torch.load(prefix + '.model', map_location='cpu')
-        else:
-            state_dict = torch.load(prefix + '.model')
+        state_dict = torch.load(prefix + '.model')
         self.model.load_state_dict(state_dict)
 
     ################################
@@ -66,16 +63,16 @@ class Experiment(object):
         self.outputter.save_model(self.meta.epoch, self.model, self.meta)
 
         max_epochs = config.timing.max_epochs
+        progress_bar = tqdm(total=max_epochs, desc='TRAIN')
 
         while self.meta.epoch < max_epochs:
             self.meta.epoch += 1
+            progress_bar.update()
             
             self.dataset.init_iter('train')
-            for train_batch in self.dataset.get_iter('train'):
+            for train_batch in tqdm(self.dataset.get_iter('train'), desc='TRAIN'):
                 stats = self.process_batch(train_batch, train=True)
                 train_stats.add(stats)
-
-            # Log the aggregate statistics
             print('TRAIN @ {}: {}'.format(self.meta.epoch, train_stats))
             train_stats.log(self.outputter.tb_logger, self.meta.epoch, 'pn_train_')
             train_stats = Stats()
@@ -88,19 +85,21 @@ class Experiment(object):
             self.dataset.init_iter('dev')
             fout_filename = 'pred.dev.{}'.format(self.meta.epoch)
             with open(self.outputter.get_path(fout_filename), 'w') as fout:
-                for dev_batch in self.dataset.get_iter('dev'):
+                for dev_batch in tqdm(self.dataset.get_iter('dev'), desc='DEV'):
                     stats = self.process_batch(dev_batch, train=False, fout=fout)
                     dev_stats.add(stats)
             print('DEV @ {}: {}'.format(self.meta.epoch, dev_stats))
             dev_stats.log(self.outputter.tb_logger, self.meta.epoch, 'pn_dev_')
             self.meta.update_acc(dev_stats.accuracy / dev_stats.n)
 
+        progress_bar.close()
+
     def test(self):
         test_stats = Stats()
         self.dataset.init_iter('test')
         fout_filename = 'pred.test.{}'.format(self.meta.epoch)
         with open(self.outputter.get_path(fout_filename), 'w') as fout:
-            for test_batch in self.dataset.get_iter('test'):
+            for test_batch in tqdm(self.dataset.get_iter('test'), desc='TEST'):
                 stats = self.process_batch(test_batch, train=False, fout=fout)
                 test_stats.add(stats)
         print('TEST @ {}: {}'.format(self.meta.epoch, test_stats))
@@ -135,8 +134,8 @@ class Experiment(object):
         stats.n = len(batch)
         stats.loss = float(mean_loss)
         # Evaluate
-        prediction = self.model.get_pred(logit, batch)
-        self.dataset.evaluate(batch, logit, prediction, stats, fout)
+        predictions = self.model.get_pred(logit, batch)
+        self.dataset.evaluate(batch, predictions, stats, fout)
         # Gradient
         if train and mean_loss.requires_grad:
             mean_loss.backward()

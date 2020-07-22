@@ -24,15 +24,15 @@ class SpanFeature(object):
     LENGTH = "length"
 
 
-class SpanEncoder(nn.Module):
+class InputEmbedder(nn.Module):
     """
     Embeds spans by concatenating the specified span features.
     """
 
     def __init__(self, config, meta):
         super().__init__()
-        c_enc = config.model.span_encoder
-        self.word_dropout = c_enc.word_dropout
+        c_emb = config.model.input_embedder
+        self.word_dropout = c_emb.word_dropout
         if self.word_dropout:
             self._build_word_dropout_probs(meta)
 
@@ -43,31 +43,31 @@ class SpanEncoder(nn.Module):
 
         self.token_embedder = nn.Embedding(
             len(meta.vocab),
-            c_enc.embedding.dim,
+            c_emb.embedding.dim,
         )
 
         self.lstm = nn.LSTM(
-            c_enc.embedding.dim,
-            c_enc.lstm.dim,
+            c_emb.embedding.dim,
+            c_emb.lstm.dim,
             batch_first=True,
-            num_layers=c_enc.lstm.layers,
+            num_layers=c_emb.lstm.layers,
             bidirectional=True,
             dropout=config.model.dropout,
         )
 
-        self.embed_dim = embed_dim = c_enc.embedding.dim
-        self.lstm_dim = c_enc.lstm.dim
-        self.seq_in_size = seq_in_size = c_enc.lstm.dim * 2
+        self.embed_dim = embed_dim = c_emb.embedding.dim
+        self.lstm_dim = c_emb.lstm.dim
+        self.seq_in_size = seq_in_size = c_emb.lstm.dim * 2
         self._build_length_buckets()
 
-        self.span_features = set(c_enc.span_features)
+        self.span_features = set(c_emb.span_features)
         print("Span features:", self.span_features)
         self.attention_ffnn = nn.Linear(seq_in_size, 1)
 
         # We bin the span length, and then have an embedding for each bin.
         if SpanFeature.LENGTH in self.span_features:
             self.length_embeddings = nn.Embedding(
-                self.num_buckets, c_enc.length_embed_dim
+                self.num_buckets, c_emb.length_embed_dim
             )
 
         # Span embedding dim
@@ -87,7 +87,7 @@ class SpanEncoder(nn.Module):
         if SpanFeature.ATTENTION_HIDDEN in self.span_features:
             self.span_embedding_dim += seq_in_size
         if SpanFeature.LENGTH in self.span_features:
-            self.span_embedding_dim += c_enc.length_embed_dim
+            self.span_embedding_dim += c_emb.length_embed_dim
         assert self.span_embedding_dim > 0
         print(
             "Dimensions:",

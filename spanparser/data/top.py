@@ -1,5 +1,3 @@
-"""TOP Dataset."""
-from __future__ import (absolute_import, division, print_function)
 from collections import namedtuple, Counter
 
 import numpy as np
@@ -226,7 +224,6 @@ class TopDataset(Dataset):
         data = self._data[name][:]
         if name == 'train':
             np.random.shuffle(data)
-        print(data[:5])
         self._iters[name] = batch_iter(
             data, self.batch_size, (lambda x: -x.length)
         )
@@ -237,7 +234,7 @@ class TopDataset(Dataset):
         """
         return self._iters[name]
 
-    def evaluate(self, batch, logit, prediction, stats, fout=None):
+    def evaluate(self, batch, prediction, stats, fout=None):
         """
         Evaluate the predictions and write the results to stats.
 

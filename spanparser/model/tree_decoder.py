@@ -6,13 +6,13 @@ from torch import nn
 from spanparser.model.utils import ProtoNode, TreeParserOutput
 
 
-class DecoderBase(nn.Module):
+class TreeDecoder(nn.Module):
     """
     An abstract class for span-based tree parsers.
 
     Takes the span embeddings and builds a tree for each example in the batch.
 
-    A child class of DecoderBase should implement the following methods:
+    A child class of TreeDecoder should implement the following methods:
     - _score_spans: Computes the necessary span scores
     - _build_tree: Builds the highest-scoring tree. Returns the tree and the score.
     - _score_tree: Scores a given tree. Returns the score.
