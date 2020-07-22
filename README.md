@@ -11,6 +11,8 @@ This is the codebase for the paper
 * PyTorch 1.x
 * [PyYAML](https://pypi.org/project/PyYAML/)
 * [tqdm](https://github.com/tqdm/tqdm/)
+* Download the processed GloVe vectors [here](https://nlp.stanford.edu/projects/phrasenode/processed-glove.zip)
+  and extract the files to `data/glove/`.
 
 ## Usage
 

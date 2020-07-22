@@ -3,7 +3,7 @@
 *.pyc
 *.swp
 
-/data
+/data/glove
 /out
 /experiments
 __pycache__
