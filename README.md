@@ -1,5 +1,10 @@
 # Span-based Hierarchical Semantic Parsing for Task-Oriented Dialog
 
+This is the codebase for the paper
+> Panupong Pasupat, Sonal Gupta, Karishma Mandyam, Rushin Shah, Mike Lewis, Luke Zettlemoyer.  
+> [**Span-based Hierarchical Semantic Parsing for Task-Oriented Dialog**](https://www.aclweb.org/anthology/D19-1163/).  
+> EMNLP, 2019
+
 ## Dependencies
 
 * Python 3.x
