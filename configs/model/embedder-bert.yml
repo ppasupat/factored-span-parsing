@@ -1,0 +1,4 @@
+model:
+  input_embedder:
+    name: bert
+    model: bert-base-uncased

@@ -4,13 +4,8 @@ import numpy as np
 from transformers import AutoTokenizer
 
 from spanparser.data.base import Dataset
+from spanparser.data.top import Token
 from spanparser.utils import batch_iter, INTENT, SLOT, PAD, UNK, SOS, EOS
-
-
-class Token(namedtuple('Token', ('text', 'index'))):
-
-    def __str__(self):
-        return self.text
 
 
 class Tree(object):
@@ -247,6 +242,7 @@ class TopBertDataset(Dataset):
             key=lambda x: x[0].index
         )
         for example, pred_tree, pred_score in ordered:
+            print(example.tree, pred_tree)
             if fout:
                 print(pred_tree, file=fout)
             if str(example.tree) == str(pred_tree):

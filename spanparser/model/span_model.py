@@ -2,39 +2,44 @@ import torch
 import torch.nn as nn
 
 
-from spanparser.model.input_embedder import InputEmbedder
-from spanparser.model.cky_with_node_scores_decoder import CKYWithNodeScoresDecoder
-from spanparser.model.cky_with_edge_scores_decoder import CKYWithEdgeScoresDecoder
-from spanparser.model.tree_output_layer import TreeOutputLayer
-from spanparser.model.utils import load_glove
-
-
 class SpanModel(nn.Module):
 
     def __init__(self, config, meta):
         super().__init__()
-        self.input_embedder = InputEmbedder(config, meta)
+        if config.model.input_embedder.name == 'lstm':
+            from spanparser.model.input_embedder import InputEmbedder
+            self.input_embedder = InputEmbedder(config, meta)
+        elif config.model.input_embedder.name == 'bert':
+            from spanparser.model.input_embedder_bert import InputEmbedderBert
+            self.input_embedder = InputEmbedderBert(config, meta)
+        else:
+            raise ValueError('Unknown input embedder: {}'.format(config.model.input_embedder.name))
         if config.model.decoder.name == 'node':
+            from spanparser.model.cky_with_node_scores_decoder import CKYWithNodeScoresDecoder
             self.decoder = CKYWithNodeScoresDecoder(
                 config, meta, self.input_embedder.span_embedding_dim
             )
         elif config.model.decoder.name == 'edge':
+            from spanparser.model.cky_with_edge_scores_decoder import CKYWithEdgeScoresDecoder
             self.decoder = CKYWithEdgeScoresDecoder(
                 config, meta, self.input_embedder.span_embedding_dim
             )
         else:
             raise ValueError('Unknown decoder: {}'.format(config.model.decoder.name))
+        from spanparser.model.tree_output_layer import TreeOutputLayer
         self.output_layer = TreeOutputLayer(config, meta)
 
     def initialize(self, config, meta):
         # GloVe
-        c_embedding = config.model.input_embedder.embedding
-        if 'glove' in c_embedding:
-            load_glove(
-                c_embedding.glove,
-                meta,
-                self.input_embedder.token_embedder.weight.data
-            )
+        if 'embedding' in config.model.input_embedder:
+          c_embedding = config.model.input_embedder.embedding
+          if 'glove' in c_embedding:
+              from spanparser.model.utils import load_glove
+              load_glove(
+                  c_embedding.glove,
+                  meta,
+                  self.input_embedder.token_embedder.weight.data
+              )
 
     def forward(self, batch):
         """
