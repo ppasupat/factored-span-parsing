@@ -12,5 +12,5 @@ model:
     cost_augment: 0.0
   output_layer:
     add_edge_loss: false
-    null_weight: 0.05
+    null_weight: 0.4
     verbose: false

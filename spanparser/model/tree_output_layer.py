@@ -45,8 +45,8 @@ class TreeOutputLayer(nn.Module):
             )
             print(
                 "PRED {} ({:9.5f}) {}".format(
-                    logit.batch_predicted_scores[i],
                     "o" if logit.batch_tree_equality[i] else "x",
+                    logit.batch_predicted_scores[i],
                     logit.batch_parses[i],
                 )
             )
