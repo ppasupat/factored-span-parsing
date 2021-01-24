@@ -1,5 +1,5 @@
 timing:
-  save_every: 0   # The model is just too big
+  save_every: 10   # The model is just too big
 
 model:
   input_embedder:
