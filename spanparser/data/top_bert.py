@@ -242,7 +242,6 @@ class TopBertDataset(Dataset):
             key=lambda x: x[0].index
         )
         for example, pred_tree, pred_score in ordered:
-            print(example.tree, pred_tree)
             if fout:
                 print(pred_tree, file=fout)
             if str(example.tree) == str(pred_tree):

@@ -1,10 +1,5 @@
 model:
   dropout: 0.2
-  input_embedder:
-    lstm:
-      dim: 164
-      layers: 2
-    length_embed_dim: 20
   decoder:
     name: node
     punt_on_training: true
@@ -17,5 +12,5 @@ model:
     cost_augment: 0.0
   output_layer:
     add_edge_loss: false
-    null_weight: 0.4
+    null_weight: 0.05
     verbose: false

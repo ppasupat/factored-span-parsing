@@ -5,11 +5,3 @@ timing:
 
 train:
   batch_size: 5
-
-model:
-  input_embedder:
-    embedding:
-      dim: 5
-      glove: null
-    lstm:
-      dim: 3

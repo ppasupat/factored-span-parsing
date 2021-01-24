@@ -95,20 +95,19 @@ class InputEmbedderBert(nn.Module):
 
     def get_batch_representation(
         self,
-        lstm_out: torch.Tensor,
+        bert_out: torch.Tensor,
         spans: List[List[int]],
         seq_lengths: torch.Tensor,
     ) -> torch.Tensor:
         """
         Args:
-            lstm_out: (batch_size, max_seq_len + 2, seq_in_size)
-                (seq_in_size is the total of LSTM hidden dims)
+            bert_out: (batch_size, max_seq_len + 2, seq_in_size)
             spans: (num_spans, 2)
             seq_lengths: (batch_size,)
         Returns:
             representation: (batch_size, num_spans, ???)
         """
-        batch_size, padded_max_seq_len, _ = lstm_out.size()
+        batch_size, padded_max_seq_len, _ = bert_out.size()
         max_seq_len = padded_max_seq_len - 2
         num_spans = len(spans)
 
@@ -131,16 +130,16 @@ class InputEmbedderBert(nn.Module):
 
         # Index select the start and end lstm outputs.
         # (batch_size, num_spans, embed_dim)
-        start_hidden = lstm_out[:, start_indices + 1, :]
+        start_hidden = bert_out[:, start_indices + 1, :]
         # (batch_size, num_spans, seq_in_size)
-        end_hidden = lstm_out[:, end_indices, :]
+        end_hidden = bert_out[:, end_indices, :]
         things_to_concat += [start_hidden, end_hidden]
 
         average_weights = batch_index_matrix / torch.sum(
             batch_index_matrix, dim=2, keepdim=True
         )
         # (batch_size, num_spans, seq_in_size)
-        average_hidden = torch.bmm(average_weights, lstm_out)
+        average_hidden = torch.bmm(average_weights, bert_out)
         things_to_concat.append(average_hidden)
 
         # Concatenate all portions of the representations.

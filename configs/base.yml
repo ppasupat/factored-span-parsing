@@ -2,6 +2,8 @@
 
 timing:
   max_epochs: 30
+  save_every: 5
+  eval_every: 5
 
 train:
   batch_size: 32

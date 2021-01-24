@@ -1,3 +1,6 @@
+timing:
+  save_every: 0   # The model is just too big
+
 model:
   input_embedder:
     name: bert
