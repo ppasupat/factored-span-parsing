@@ -1,0 +1,8 @@
+data:
+  name: top_bert
+  files:
+    train: data/artificial-chain/train.seq
+    dev: data/artificial-chain/eval.seq
+    test: data/artificial-chain/test.seq
+  tokenizer: bert-base-uncased
+  lower: true

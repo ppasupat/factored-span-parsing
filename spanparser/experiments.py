@@ -57,12 +57,16 @@ class Experiment(object):
 
     def train(self):
         config = self.config
+        max_epochs = config.timing.max_epochs
+        save_every = config.timing.save_every
+        eval_every = config.timing.eval_every
+
         train_stats = Stats()
 
         # Initial save
-        self.outputter.save_model(self.meta.epoch, self.model, self.meta)
+        if save_every > 0:
+            self.outputter.save_model(self.meta.epoch, self.model, self.meta)
 
-        max_epochs = config.timing.max_epochs
         progress_bar = tqdm(total=max_epochs, desc='TRAIN')
 
         while self.meta.epoch < max_epochs:
@@ -77,20 +81,22 @@ class Experiment(object):
             train_stats.log(self.outputter.tb_logger, self.meta.epoch, 'pn_train_')
             train_stats = Stats()
 
-            # Save the model
-            self.outputter.save_model(self.meta.epoch, self.model, self.meta)
+            if save_every > 0 and self.meta.epoch % save_every == 0:
+                # Save the model
+                self.outputter.save_model(self.meta.epoch, self.model, self.meta)
 
-            # Evaluate
-            dev_stats = Stats()
-            self.dataset.init_iter('dev')
-            fout_filename = 'pred.dev.{}'.format(self.meta.epoch)
-            with open(self.outputter.get_path(fout_filename), 'w') as fout:
-                for dev_batch in tqdm(self.dataset.get_iter('dev'), desc='DEV'):
-                    stats = self.process_batch(dev_batch, train=False, fout=fout)
-                    dev_stats.add(stats)
-            print('DEV @ {}: {}'.format(self.meta.epoch, dev_stats))
-            dev_stats.log(self.outputter.tb_logger, self.meta.epoch, 'pn_dev_')
-            self.meta.update_acc(dev_stats.accuracy / dev_stats.n)
+            if self.meta.epoch % eval_every == 0:
+                # Evaluate
+                dev_stats = Stats()
+                self.dataset.init_iter('dev')
+                fout_filename = 'pred.dev.{}'.format(self.meta.epoch)
+                with open(self.outputter.get_path(fout_filename), 'w') as fout:
+                    for dev_batch in tqdm(self.dataset.get_iter('dev'), desc='DEV'):
+                        stats = self.process_batch(dev_batch, train=False, fout=fout)
+                        dev_stats.add(stats)
+                print('DEV @ {}: {}'.format(self.meta.epoch, dev_stats))
+                dev_stats.log(self.outputter.tb_logger, self.meta.epoch, 'pn_dev_')
+                self.meta.update_acc(dev_stats.accuracy / dev_stats.n)
 
         progress_bar.close()
 

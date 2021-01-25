@@ -2,10 +2,12 @@
 
 timing:
   max_epochs: 30
+  save_every: 5
+  eval_every: 1
 
 train:
   batch_size: 32
-  learning_rate: 0.001
+  learning_rate: 0.00001
   l2_reg: 0
   gradient_clip: 10
 
@@ -14,14 +16,3 @@ data:
 
 model:
   name: span
-  input_embedder:
-    embedding:
-      dim: 200
-      glove: data/glove/glove.6B.200d.txt
-    span_features:
-      - inside_hidden
-      - stern_hidden
-      - average_hidden
-      - attention_token
-      - length
-    word_dropout: true
