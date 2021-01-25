@@ -11,8 +11,10 @@ This is the codebase for the paper
 * PyTorch 1.x
 * [PyYAML](https://pypi.org/project/PyYAML/)
 * [tqdm](https://github.com/tqdm/tqdm/)
-* Download the processed GloVe vectors [here](https://nlp.stanford.edu/projects/phrasenode/processed-glove.zip)
+* For the GloVe + LSTM model,
+  download the processed GloVe vectors [here](https://nlp.stanford.edu/projects/phrasenode/processed-glove.zip)
   and extract the files to `data/glove/`.
+* For the BERT model, [🤗Transformers](https://github.com/huggingface/transformers) is also required.
 
 ## Usage
 
@@ -24,7 +26,7 @@ This is the codebase for the paper
   The results will be saved to `out/___.exec/` where `___` is some number. The results contain
   the final config file, saved models, and predictions.
 
-* To use the real training data (TOP dataset), change the `data` config to `configs/data/top-dataset.yml`.
+* To use the real training data (TOP dataset), change the `data` config to `configs/data/top.yml`.
 
 * To use edge scores, change the `model` config to `configs/model/span-edge.yml`.
 
@@ -35,3 +37,15 @@ This is the codebase for the paper
   ```bash
   ./main.py test out/42.exec/config.json -l out/42.exec/14
   ```
+## Notes
+
+* The training accuracy will be incorrect because the decoder is not run during training.
+  To turn on decoding during training, add
+  ```bash
+  -c "{"model": {"decoder": {"punt_on_training": false}}}"`
+  ```
+  to the command line.
+
+* To use the BERT model, change both the data config and embedder config to the BERT counterparts
+  (`artificial-chain.yml` > `artificial-chain-bert.yml`, `top.yml` > `top-bert.yml`,
+  `embedder-lstm.yml` > `embedder-bert.yml`)
