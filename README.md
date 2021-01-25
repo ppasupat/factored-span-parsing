@@ -20,7 +20,8 @@ This is the codebase for the paper
 
 * Training with the basic model (no edge scores) on debug data:
   ```bash
-  ./main.py train configs/base.yml configs/data/artificial-chain.yml configs/model/span-node.yml
+  ./main.py train configs/base.yml configs/data/artificial-chain.yml \
+    configs/model/embedder-lstm.yml configs/model/span-node.yml
   ```
   This will train the model on the **training** data and evaluate on the **development** data.
   The results will be saved to `out/___.exec/` where `___` is some number. The results contain
