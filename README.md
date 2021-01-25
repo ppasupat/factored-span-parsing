@@ -16,7 +16,7 @@ This is the codebase for the paper
   and extract the files to `data/glove/`.
 * For the BERT model, [🤗Transformers](https://github.com/huggingface/transformers) is also required.
 
-## Usage
+## Basic Usage
 
 * Training with the basic model (no edge scores) on debug data:
   ```bash
@@ -26,18 +26,22 @@ This is the codebase for the paper
   The results will be saved to `out/___.exec/` where `___` is some number. The results contain
   the final config file, saved models, and predictions.
 
+* The `out/__.exec/__.meta` metadata file stores the best accuracy and the epoch for that accuracy.
+  To dump the metadata, use `./dump-meta.py out/__.exec/__.meta`.
+  
+* To dump the predictions of a trained model in, say, `out/42.exec/14.model` on the **test** data:
+  ```bash
+  ./main.py test out/42.exec/config.json -l out/42.exec/14
+  ```
+## Configs
+
 * To use the real training data (TOP dataset), change the `data` config to `configs/data/top.yml`.
 
 * To use edge scores, change the `model` config to `configs/model/span-edge.yml`.
 
-* The `out/__.exec/__.meta` metadata file stores the best accuracy and the epoch for that accuracy.
-  To dump the metadata, use `./dump-meta.py out/__.exec/__.meta`.
-  
-* To dump the predictions of a trained model in `out/42.exec/14.model` on the **test** data:
-  ```bash
-  ./main.py test out/42.exec/config.json -l out/42.exec/14
-  ```
-## Notes
+* To use the BERT model, change both the data config and embedder config to the BERT counterparts
+  (`artificial-chain.yml` > `artificial-chain-bert.yml`, `top.yml` > `top-bert.yml`,
+  `embedder-lstm.yml` > `embedder-bert.yml`)
 
 * The training accuracy will be incorrect because the decoder is not run during training.
   To turn on decoding during training, add
@@ -46,6 +50,4 @@ This is the codebase for the paper
   ```
   to the command line.
 
-* To use the BERT model, change both the data config and embedder config to the BERT counterparts
-  (`artificial-chain.yml` > `artificial-chain-bert.yml`, `top.yml` > `top-bert.yml`,
-  `embedder-lstm.yml` > `embedder-bert.yml`)
+
