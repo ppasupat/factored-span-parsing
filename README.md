@@ -12,7 +12,7 @@ This is the codebase for the paper
 * [PyYAML](https://pypi.org/project/PyYAML/)
 * [tqdm](https://github.com/tqdm/tqdm/)
 * For the GloVe + LSTM model,
-  download the processed GloVe vectors [here](https://nlp.stanford.edu/projects/phrasenode/processed-glove.zip)
+  download the [processed GloVe vectors](https://nlp.stanford.edu/projects/phrasenode/glove.6B.200d.processed.zip)
   and extract the files to `data/glove/`.
 * For the BERT model, [🤗Transformers](https://github.com/huggingface/transformers) is also required.
 
