@@ -169,7 +169,7 @@ class InputEmbedder(nn.Module):
         # embedded_tokens: (batch_size, max_seq_len + 2, embed_dim)
         embedded_tokens = self.token_embedder(padded_token_indices)
         packed_embedded_tokens = pack_padded_sequence(
-            embedded_tokens, seq_lengths + 2, batch_first=True,
+            embedded_tokens, seq_lengths.cpu() + 2, batch_first=True,
         )
         packed_lstm_out, _ = self.lstm(packed_embedded_tokens)
         # lstm_out: (batch_size, max_seq_len + 2, seq_in_size)
