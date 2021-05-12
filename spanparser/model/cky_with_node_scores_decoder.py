@@ -152,7 +152,7 @@ class CKYWithNodeScoresDecoder(TreeDecoder):
         if self.cost_augment != 0.0 and self.training:
             assert gold_proto_node is not None
             gold_chains = {
-                key: self.chains_idx[tuple(self.labels_idx[l] for l in chain)]
+                key: self.chains_idx[tuple(self.labels_idx.get(l, 0) for l in chain)]
                 for (key, chain) in gold_proto_node.to_chains().items()
             }
             # Update the span_cands by adding 1 to each unmatching label
@@ -335,10 +335,10 @@ class CKYWithNodeScoresDecoder(TreeDecoder):
                 and node.children[0].end == node.end
             ):
                 proto_node_stack.append(
-                    (node.children[0], chain_so_far + [self.labels_idx[node.label]])
+                    (node.children[0], chain_so_far + [self.labels_idx.get(node.label, 0)])
                 )
             else:
-                chain = tuple(chain_so_far + [self.labels_idx[node.label]])
+                chain = tuple(chain_so_far + [self.labels_idx.get(node.label, 0)])
                 if chain not in self.chains_idx:
                     print("WARNING: chain {} not in training data".format(chain))
                 else:

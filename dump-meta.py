@@ -34,7 +34,7 @@ def process(filename, args):
             print()
     else:
         for k in sorted(data):
-            if k.startswith('best'):
+            if k.startswith('best') or k == 'all_accs':
                 print('{}: {}'.format(k, data[k]))
     print()
 

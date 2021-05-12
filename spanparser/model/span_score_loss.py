@@ -111,10 +111,10 @@ class SpanScoreLoss(nn.Module):
                 and node.children[0].end == node.end
             ):
                 proto_node_stack.append(
-                    (node.children[0], chain_so_far + [self.labels_idx[node.label]])
+                    (node.children[0], chain_so_far + [self.labels_idx.get(node.label, 0)])
                 )
             else:
-                chain = tuple(chain_so_far + [self.labels_idx[node.label]])
+                chain = tuple(chain_so_far + [self.labels_idx.get(node.label, 0)])
                 if chain not in self.chains_idx:
                     print("WARNING: chain {} not in training data".format(chain))
                 else:
@@ -137,7 +137,7 @@ class SpanScoreLoss(nn.Module):
                 proto_node_stack.append(child)
                 if not (node.start == child.start and node.end == child.end):
                     edges[child.start, child.end] = (
-                        self.labels_idx[child.label],
-                        self.labels_idx[node.label],
+                        self.labels_idx.get(child.label, 0),
+                        self.labels_idx.get(node.label, 0),
                     )
         return edges

@@ -162,7 +162,7 @@ class CKYWithEdgeScoresDecoder(TreeDecoder):
         if self.cost_augment != 0.0 and self.training:
             assert gold_proto_node is not None
             gold_chains = {
-                key: self.unary_chain_idx[tuple(self.labels_idx[l] for l in chain)]
+                key: self.unary_chain_idx[tuple(self.labels_idx.get(l, 0) for l in chain)]
                 for (key, chain) in gold_proto_node.to_chains().items()
             }
             # Update the span_cands by adding 1 to each unmatching label
@@ -425,11 +425,11 @@ class CKYWithEdgeScoresDecoder(TreeDecoder):
                     (
                         node.children[0],
                         parent_label,
-                        chain_so_far + [self.labels_idx[node.label]],
+                        chain_so_far + [self.labels_idx.get(node.label, 0)],
                     )
                 )
             else:
-                chain = tuple(chain_so_far + [self.labels_idx[node.label]])
+                chain = tuple(chain_so_far + [self.labels_idx.get(node.label, 0)])
                 # Node score
                 if chain not in self.unary_chain_idx:
                     print("WARNING: chain {} not in training data".format(chain))
@@ -442,7 +442,7 @@ class CKYWithEdgeScoresDecoder(TreeDecoder):
                     tree_score += edges.edges[chain[0]][parent_label]
                 # Add the children
                 for child in node.children:
-                    proto_node_stack.append((child, self.labels_idx[node.label], []))
+                    proto_node_stack.append((child, self.labels_idx.get(node.label, 0), []))
         if isinstance(tree_score, int):
             # This can happen if all unary chains are unknown.
             print("WARNING: tree_score is 0")

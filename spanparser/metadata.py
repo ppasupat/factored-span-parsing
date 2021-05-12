@@ -5,7 +5,7 @@
 import pickle
 
 
-DEFAULT_SAVE_KEYS = ['epoch', 'best_epoch', 'best_acc']
+DEFAULT_SAVE_KEYS = ['epoch', 'best_epoch', 'best_acc', 'all_accs']
 
 
 class Metadata(object):
@@ -18,6 +18,7 @@ class Metadata(object):
         self.epoch = 0
         self.best_epoch = 0
         self.best_acc = 0
+        self.all_accs = {}
 
     def save(self, filename):
         to_save = {k: getattr(self, k) for k in self.save_keys}
@@ -34,6 +35,7 @@ class Metadata(object):
     # Key-specific operations
 
     def update_acc(self, acc):
+        self.all_accs[self.epoch] = acc
         if acc > self.best_acc:
             print('Found new best acc @ {}: {}'.format(self.epoch, acc))
             self.best_epoch = self.epoch
