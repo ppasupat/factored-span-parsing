@@ -81,10 +81,6 @@ class Experiment(object):
             train_stats.log(self.outputter.tb_logger, self.meta.epoch, 'pn_train_')
             train_stats = Stats()
 
-            if save_every > 0 and self.meta.epoch % save_every == 0:
-                # Save the model
-                self.outputter.save_model(self.meta.epoch, self.model, self.meta)
-
             if self.meta.epoch % eval_every == 0:
                 # Evaluate
                 dev_stats = Stats()
@@ -97,6 +93,10 @@ class Experiment(object):
                 print('DEV @ {}: {}'.format(self.meta.epoch, dev_stats))
                 dev_stats.log(self.outputter.tb_logger, self.meta.epoch, 'pn_dev_')
                 self.meta.update_acc(dev_stats.accuracy / dev_stats.n)
+
+            if save_every > 0 and self.meta.epoch % save_every == 0:
+                # Save the model
+                self.outputter.save_model(self.meta.epoch, self.model, self.meta)
 
         progress_bar.close()
 

@@ -7,6 +7,9 @@ from spanparser.model.utils import ProtoNode, TreeParserOutput
 from spanparser.utils import try_gpu
 
 
+DUMMY_INTENT = "IN:DUMMY"
+
+
 class SpanScoreLoss(nn.Module):
     """
     Computes cross-entropy loss on span scores and (optionally) edge scores.
@@ -47,7 +50,7 @@ class SpanScoreLoss(nn.Module):
                 decoded_spans = logit.batch_span_scores[i]
             gold_proto_node = logit.batch_golds[i]
             gold_chains = self.tree_to_chains(gold_proto_node)
-            total_loss = 0.0
+            total_loss = try_gpu(torch.zeros([], dtype=torch.float64))
 
             # Add node losses
             # prediction: (num_spans, num_classes)
@@ -70,10 +73,24 @@ class SpanScoreLoss(nn.Module):
                 for decoded_span in decoded_spans
             ]
             targets = try_gpu(torch.tensor(targets))
-            total_loss = total_loss + self.node_loss(prediction, targets)
+            if gold_proto_node.label == DUMMY_INTENT:
+                # Only look at the losses of the spans
+                dummy_chain_idx = self.chains_idx[(self.labels_idx[DUMMY_INTENT],)]
+                good_entries = []
+                for i, decoded_span in enumerate(decoded_spans):
+                    gold_chain = gold_chains.get((decoded_span.start, decoded_span.end))
+                    if (gold_chain is not None and gold_chain != dummy_chain_idx):
+                        good_entries.append(i)
+                if good_entries:
+                    good_entries = try_gpu(torch.tensor(good_entries))
+                    prediction = torch.index_select(prediction, 0, good_entries)
+                    targets = torch.index_select(targets, 0, good_entries)
+                    total_loss = total_loss + self.node_loss(prediction, targets)
+            else:
+                total_loss = total_loss + self.node_loss(prediction, targets)
 
             # Add edge losses
-            if self.edge_loss is not None:
+            if self.edge_loss is not None and gold_proto_node.label != DUMMY_INTENT:
                 span_edges = {(span.start, span.end): span for span in decoded_edges}
                 gold_edges = self.tree_to_edges(gold_proto_node)
                 if not gold_edges:
