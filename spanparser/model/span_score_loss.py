@@ -30,6 +30,7 @@ class SpanScoreLoss(nn.Module):
         self.chains_idx = meta.unary_chains_x
         # Construct the loss weight; the first class is the NULL class
         self.null_weight = config.model.output_layer.null_weight
+        self.dummy_weight = config.model.output_layer.dummy_weight
         weight = [self.null_weight] + [1.0] * len(self.chains_idx)
         weight = try_gpu(torch.tensor(weight))
         self.node_loss = nn.CrossEntropyLoss(weight=weight)
@@ -85,7 +86,8 @@ class SpanScoreLoss(nn.Module):
                     good_entries = try_gpu(torch.tensor(good_entries))
                     prediction = torch.index_select(prediction, 0, good_entries)
                     targets = torch.index_select(targets, 0, good_entries)
-                    total_loss = total_loss + self.node_loss(prediction, targets)
+                    total_loss = total_loss + (
+                            self.node_loss(prediction, targets) * self.dummy_weight)
             else:
                 total_loss = total_loss + self.node_loss(prediction, targets)
 

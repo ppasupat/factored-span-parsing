@@ -19,4 +19,5 @@ model:
   output_layer:
     add_edge_loss: true
     null_weight: 0.2
+    dummy_weight: 1.0
     verbose: false
